@@ -1,0 +1,98 @@
+# 恒星质量预测模型配置文件
+
+# 模型参数
+model:
+  hidden_dim: 128        # 保持适中的模型容量
+  num_layers: 4          # 减少层数以降低模型复杂度
+  num_heads: 8
+  dropout: 0.25          # 增加dropout率以缓解过拟合
+
+# 训练参数
+training:
+  batch_size: 32
+  num_epochs: 5         # 适当增加epoch但不过度训练
+  learning_rate: 0.001
+  weight_decay: 1e-5    # 增加weight_decay以加强权重约束
+  seed: 42
+  num_workers: 4
+  gradient_clipping: true
+  max_grad_norm: 1.0
+  early_stopping_patience: 10
+  lr_factor: 0.5
+  lr_patience: 5
+  save_interval: 5
+  test_after_training: true
+  visualize_results: true
+  # 学习率调度器配置
+  lr_scheduler:
+    min_lr: 1e-6         # 最小学习率
+  # 损失函数配置
+  loss:
+    type: "mse"  # 可选: "weighted_mse", "focal_mse", "mse"
+    # Weighted MSE参数
+    low_threshold: -0.7709  # 极小质量阈值，调整为与用户提到的极端值一致
+    high_threshold: 0.9376  # 极大质量阈值，设置为2.0以区分普通极大值和超极大值
+    low_weight: 3.0      # 极小质量样本权重，增加权重以提高模型对极端值的关注
+    high_weight: 5.0  # 极大质量样本权重，增加权重以提高模型对极端值的关注
+    mid_weight: 1.0      # 中间质量样本权重
+    # Focal MSE参数
+    alpha: 0.35          # 平衡难分样本和正常样本的权重
+    gamma: 2.3           # 降低gamma以减少对难分样本的过度聚焦，缓解过拟合
+
+# 数据参数
+data:
+  train_file: "train_data.csv"
+  val_file: "val_data.csv"
+  test_file: "test_data.csv"
+  feature_columns: ["log_L", "log_Teff", "[Fe/H]"]
+  target_column: "log10_mass"
+
+# 路径配置
+paths:
+  data_dir: "data"
+  model_dir: "models"
+  log_dir: "logs"
+  result_dir: "results"
+
+# 日志配置
+logging:
+  level: "INFO"
+  log_interval: 10
+  enable_file_logging: true
+  enable_console_logging: true
+  enable_structured_logging: true
+
+# 监控配置
+monitoring:
+  enable_wandb: true  # 启用WandB监控
+  enable_realtime_dashboard: true  # 启用实时仪表板
+  enable_system_monitoring: true  # 启用系统资源监控
+  update_interval: 10  # 系统指标更新间隔（秒）
+  enable_email_alerts: false  # 启用邮件报警
+  smtp_config:
+    server: "smtp.gmail.com"
+    port: 587
+    username: "your_email@gmail.com"
+    password: "your_password"
+    from_addr: "your_email@gmail.com"
+    to_addrs: ["recipient@example.com"]
+
+# WandB配置
+wandb:
+  project_name: "stellar-mass-prediction"  # WandB项目名称
+  entity: null  # WandB实体名称（用户名或团队名），null表示使用默认
+  tags: ["transformer", "stellar-physics", "mass-prediction"]  # 实验标签
+  group: null  # 实验组名，null表示不分组
+  job_type: "training"  # 作业类型
+  resume: null  # 是否恢复之前的运行
+  mode: "online"  # 运行模式："online", "offline", "disabled"
+  config: {}  # 额外的配置参数
+
+# 系统配置
+system:
+  device: "auto"  # 设备选择："auto", "cpu", "cuda"
+  mixed_precision: false  # 是否使用混合精度训练
+  distributed_training: true  # 是否使用分布式训练
+  world_size: 6  # 分布式训练的总进程数，即使用的GPU卡数
+  master_addr: "localhost"  # 主节点地址
+  master_port: "12355"  # 主节点端口

@@ -1,0 +1,28 @@
+{
+    "step": [
+        0
+    ],
+    "train_loss": [
+        2.6243839263916016
+    ],
+    "val_loss": [],
+    "train_r2": [
+        -0.6945896037747035
+    ],
+    "val_r2": [],
+    "learning_rate": [
+        0.001
+    ],
+    "cpu_usage": [
+        16.3
+    ],
+    "memory_usage": [
+        6.2
+    ],
+    "gpu_usage": [
+        6
+    ],
+    "gpu_memory": [
+        100.0
+    ]
+}
